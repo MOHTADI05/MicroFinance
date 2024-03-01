@@ -1,11 +1,13 @@
 package tn.fintech.mfb.service;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import tn.fintech.mfb.domain.BankAccount;
-import tn.fintech.mfb.domain.Transaction;
-import tn.fintech.mfb.domain.User;
+import tn.fintech.mfb.entity.BankAccount;
+import tn.fintech.mfb.entity.Transaction;
+import tn.fintech.mfb.entity.User;
 import tn.fintech.mfb.model.BankAccountDTO;
 import tn.fintech.mfb.repos.BankAccountRepository;
 import tn.fintech.mfb.repos.TransactionRepository;
@@ -13,50 +15,19 @@ import tn.fintech.mfb.repos.UserRepository;
 import tn.fintech.mfb.util.NotFoundException;
 import tn.fintech.mfb.util.ReferencedWarning;
 
-
+@AllArgsConstructor
 @Service
-public class BankAccountService {
+public class BankAccountService  implements  IbankAccount{
+    BankAccountRepository bankAccountRepository;
+      UserRepository userRepository;
+      TransactionRepository transactionRepository;
 
-    private final BankAccountRepository bankAccountRepository;
-    private final UserRepository userRepository;
-    private final TransactionRepository transactionRepository;
-
-    public BankAccountService(final BankAccountRepository bankAccountRepository,
-            final UserRepository userRepository,
-            final TransactionRepository transactionRepository) {
-        this.bankAccountRepository = bankAccountRepository;
-        this.userRepository = userRepository;
-        this.transactionRepository = transactionRepository;
-    }
 
     public List<BankAccountDTO> findAll() {
         final List<BankAccount> bankAccounts = bankAccountRepository.findAll(Sort.by("rib"));
         return bankAccounts.stream()
                 .map(bankAccount -> mapToDTO(bankAccount, new BankAccountDTO()))
                 .toList();
-    }
-
-    public BankAccountDTO get(final Long rib) {
-        return bankAccountRepository.findById(rib)
-                .map(bankAccount -> mapToDTO(bankAccount, new BankAccountDTO()))
-                .orElseThrow(NotFoundException::new);
-    }
-
-    public Long create(final BankAccountDTO bankAccountDTO) {
-        final BankAccount bankAccount = new BankAccount();
-        mapToEntity(bankAccountDTO, bankAccount);
-        return bankAccountRepository.save(bankAccount).getRib();
-    }
-
-    public void update(final Long rib, final BankAccountDTO bankAccountDTO) {
-        final BankAccount bankAccount = bankAccountRepository.findById(rib)
-                .orElseThrow(NotFoundException::new);
-        mapToEntity(bankAccountDTO, bankAccount);
-        bankAccountRepository.save(bankAccount);
-    }
-
-    public void delete(final Long rib) {
-        bankAccountRepository.deleteById(rib);
     }
 
     private BankAccountDTO mapToDTO(final BankAccount bankAccount,

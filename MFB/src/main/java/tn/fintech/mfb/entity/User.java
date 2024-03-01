@@ -1,4 +1,4 @@
-package tn.fintech.mfb.domain;
+package tn.fintech.mfb.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

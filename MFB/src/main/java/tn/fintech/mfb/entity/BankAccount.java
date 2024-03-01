@@ -1,4 +1,4 @@
-package tn.fintech.mfb.domain;
+package tn.fintech.mfb.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +13,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
 import java.util.Set;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import tn.fintech.mfb.model.TypeAccount;
 
@@ -21,6 +24,8 @@ import tn.fintech.mfb.model.TypeAccount;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BankAccount {
 
     @Id
