@@ -1,6 +1,7 @@
 package tn.esprit.mfb.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +18,15 @@ public class User implements Serializable, UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cin;
 
+    @Size(min = 2, max = 30)
     private String nom;
 
     private String prenom;
 
     private Integer age;
 
+    @Email
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -30,12 +34,26 @@ public class User implements Serializable, UserDetails {
     private String adresse;
 
     private String gender;
-
+    @Min(value = 10000000)
+    @Max(value= 99999999)
     private Integer phoneNum;
 
     @Enumerated(EnumType.STRING)
     private TypeUser role;
 
+    private boolean isbloked;
+
+    private Integer code;
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer token) {
+        this.code = token;
+    }
+
+    public void setIsbloked(boolean isbloked) { this.isbloked = isbloked; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -45,7 +63,6 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public String getPassword() {
-
         return password;
     }
 
@@ -109,8 +126,11 @@ public class User implements Serializable, UserDetails {
         return role;
     }
 
+    public boolean isIsbloked()  { return isbloked; }
+
 
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

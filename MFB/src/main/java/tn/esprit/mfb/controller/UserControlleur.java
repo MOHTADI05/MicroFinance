@@ -1,0 +1,73 @@
+package tn.esprit.mfb.controller;
+
+import io.jsonwebtoken.Claims;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.mfb.Repo.UserRepository;
+import tn.esprit.mfb.Services.EmailSenderService;
+import tn.esprit.mfb.Services.UserService;
+import tn.esprit.mfb.config.JwtBlacklistService;
+import tn.esprit.mfb.config.JwtService;
+import tn.esprit.mfb.entity.User;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/user")
+@AllArgsConstructor
+public class UserControlleur {
+
+    private final UserService userService;
+    private final EmailSenderService emailSenderService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
+    private final JwtBlacklistService jwtBlacklistService;
+
+    @PostMapping("/restpassword/request")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody Map<String, String> email) {
+        String userEmail = email.get("email");
+        userService.requestPasswordReset(userEmail);
+        return ResponseEntity.ok("Password reset requested successfully.");
+    }
+
+    @GetMapping("/validate-token")
+    public ResponseEntity<String> validateResetToken(@RequestParam String email, @RequestParam Integer code) {
+        try {
+
+            String userEmail = email;
+            var user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            Integer codeU= user.getCode();
+            System.out.println("BLACK LISTAAAAA ");
+            System.out.println(jwtBlacklistService.isTokenBlacklisted(String.valueOf(user.getCode())));
+
+
+            if( codeU.equals(code) && !jwtBlacklistService.isTokenBlacklisted(String.valueOf(user.getCode()))) {
+                String passwordResetUrl = "http://localhost:8084/api/user/new-password/" + userEmail;
+                emailSenderService.sendSimpleEmail(userEmail, "Password reset link", passwordResetUrl);
+                jwtBlacklistService.blacklistCode(user.getCode());
+
+                return ResponseEntity.ok("code is valid. Password reset link sent to your email.");
+            } else {
+                return ResponseEntity.badRequest().body("Invalid or expired code.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the request.");
+        }
+    }
+
+    @PutMapping("/new-password/{useremail}")
+    public ResponseEntity<String> resetPassword(@PathVariable("useremail") String userEmail, @RequestBody Map<String, String> password) {
+        String pwd = password.get("password");
+
+        return userService.newpassword(userEmail,pwd);
+
+    }
+
+}
+
