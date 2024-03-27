@@ -36,23 +36,26 @@ public class UserControlleur {
         return ResponseEntity.ok("Password reset requested successfully.");
     }
 
-    @GetMapping("/validate-token")
-    public ResponseEntity<String> validateResetToken(@RequestParam String email, @RequestParam Integer code) {
+    @GetMapping("/validate-token/{useremail}")
+    public ResponseEntity<String> validateResetToken(@PathVariable("useremail") String email, @RequestBody Map<String, String> codeMap) {
         try {
-
             String userEmail = email;
             var user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            Integer codeU= user.getCode();
+            Integer userCode = user.getCode();
+
+            // Récupérer le code de la map
+            String code = codeMap.get("code");
+
             System.out.println("BLACK LISTAAAAA ");
-            System.out.println(jwtBlacklistService.isTokenBlacklisted(String.valueOf(user.getCode())));
+            System.out.println(jwtBlacklistService.isTokenBlacklisted(String.valueOf(userCode)));
 
-
-            if( codeU.equals(code) && !jwtBlacklistService.isTokenBlacklisted(String.valueOf(user.getCode()))) {
+            // Vérifier si le code de l'utilisateur correspond au code de la requête et s'il n'est pas en liste noire
+            if (userCode.equals(Integer.valueOf(code)) && !jwtBlacklistService.isTokenBlacklisted(String.valueOf(userCode))) {
                 String passwordResetUrl = "http://localhost:8084/api/user/new-password/" + userEmail;
                 emailSenderService.sendSimpleEmail(userEmail, "Password reset link", passwordResetUrl);
-                jwtBlacklistService.blacklistCode(user.getCode());
+                jwtBlacklistService.blacklistCode(userCode);
 
-                return ResponseEntity.ok("code is valid. Password reset link sent to your email.");
+                return ResponseEntity.ok("Code is valid. Password reset link sent to your email.");
             } else {
                 return ResponseEntity.badRequest().body("Invalid or expired code.");
             }
@@ -60,6 +63,7 @@ public class UserControlleur {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the request.");
         }
     }
+
 
     @PutMapping("/new-password/{useremail}")
     public ResponseEntity<String> resetPassword(@PathVariable("useremail") String userEmail, @RequestBody Map<String, String> password) {

@@ -34,6 +34,7 @@ public class User implements Serializable, UserDetails {
     private String adresse;
 
     private String gender;
+
     @Min(value = 10000000)
     @Max(value= 99999999)
     private Integer phoneNum;
@@ -41,9 +42,43 @@ public class User implements Serializable, UserDetails {
     @Enumerated(EnumType.STRING)
     private TypeUser role;
 
+    public void setRole(TypeUser role) {
+        this.role = role;
+    }
+
     private boolean isbloked;
 
     private Integer code;
+
+    private String performance;
+    private String potentiel;
+
+    @Enumerated(EnumType.STRING)
+    private TalentReview classification;
+
+    public void setClassification(TalentReview classification) {
+        this.classification = classification;
+    }
+
+    public TalentReview getClassification() {
+        return classification;
+    }
+
+    public void setPerformance(String performance) {
+        this.performance = performance;
+    }
+
+    public void setPotentiel(String potentiel) {
+        this.potentiel = potentiel;
+    }
+
+    public String getPerformance() {
+        return performance;
+    }
+
+    public String getPotentiel() {
+        return potentiel;
+    }
 
     public Integer getCode() {
         return code;

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface UserService {
 
+
     void DeleteUser(User u);
     void DeleteUser(Long id);
     List<User> getAllUser();
@@ -19,6 +20,8 @@ public interface UserService {
     void UnblockUser(Long id);
     void requestPasswordReset(String userEmail);
     ResponseEntity<String> newpassword(String userEmail, String password);
+
+
 
 
 

@@ -16,6 +16,7 @@ import tn.esprit.mfb.config.JwtBlacklistService;
 import tn.esprit.mfb.config.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import tn.esprit.mfb.controller.AuthenticationResponse;
+import tn.esprit.mfb.entity.TypeUser;
 import tn.esprit.mfb.entity.User;
 
 import java.time.LocalDateTime;
@@ -25,8 +26,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 
-    @Autowired
-    UserRepository Repuser;
+    private final UserRepository Repuser;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService{
     public AuthenticationResponse register(User u) {
         String encodedPassword = passwordEncoder.encode(u.getPassword());
         u.setPassword(encodedPassword);
+        u.setRole(TypeUser.CLIENT);
         u.setIsbloked(false);
         var jwtToken = jwtService.generateToken( Repuser.save(u));
         emailSenderService.sendSimpleEmail("aissa.swiden@esprit.tn","new user","you have a new user his email is "+ u.getEmail());
@@ -133,29 +134,20 @@ public class UserServiceImpl implements UserService{
 
         var user = Repuser.findByEmail(userEmail).orElseThrow(()->new UsernameNotFoundException("user not found"));
         if (user != null) {
-
-            // Générez le token de réinitialisation de mot de passe
             //String token = jwtService.generatePasswordResetToken(user);
             Integer code = generateRandomNumber();
             System.out.println("hetha fel GENEREAT"+ code);
-
             user.setCode(code);
-
             Repuser.save(user);
             System.out.println(user.getCode());
-
-
             // Envoyer l'e-mail avec le lien de réinitialisation
-            String resetUrl = "http://localhost:8084/api/user/validate-token";
+            String resetUrl = "http://localhost:8084/api/user/validate-token/"+userEmail;
 //            String resetUrl = "http://localhost:8084/api/user/validate-token?token=" + code;
-
             sendResetEmail(userEmail, resetUrl,code);
         }
     }
     private void sendResetEmail(String userEmail, String resetUrl,Integer code) {
-
-        emailSenderService.sendSimpleEmail(userEmail,"Demande de réinitialisation de mot de passe","Pour réinitialiser votre mot de passe, veuillez cliquer sur le lien suivant : " + resetUrl + "ou voici votre code de verif : "+ code );
-
+        emailSenderService.sendSimpleEmail(userEmail,"Demande de réinitialisation de mot de passe","Pour réinitialiser votre mot de passe, veuillez cliquer sur le lien suivant : " + resetUrl + " et voici votre code de verif : "+ code );
     }
     @Override
     public ResponseEntity<String> newpassword(String userEmail, String password){
@@ -165,11 +157,8 @@ public class UserServiceImpl implements UserService{
             String encodedPassword = passwordEncoder.encode(password);
             user.setPassword(encodedPassword);
             Repuser.save(user);
-//
 //            var jwtToken = jwtService.generateToken( Repuser.save(user));
 //            System.out.println(jwtToken);
-
-
             return ResponseEntity.ok("Password reset successful.");
 
         } catch (Exception e) {
@@ -180,13 +169,9 @@ public class UserServiceImpl implements UserService{
 
 
         public static int generateRandomNumber() {
-            // Créer une instance de la classe Random
+
             Random random = new Random();
-
-            // Générer un nombre aléatoire entre 10000 et 99999 inclusivement
             int randomNumber = random.nextInt(90000) + 10000;
-           // LocalDateTime expirationDateTime = LocalDateTime.now().plusMinutes(1);
-
             return randomNumber;
         }
 

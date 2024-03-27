@@ -1,13 +1,12 @@
 package tn.esprit.mfb.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.mfb.Services.ClusteringService;
 import tn.esprit.mfb.Services.UserService;
 import tn.esprit.mfb.config.JwtBlacklistService;
 import tn.esprit.mfb.entity.User;
@@ -16,7 +15,10 @@ import tn.esprit.mfb.entity.User;
 @RequestMapping("/user/auth")
 @RequiredArgsConstructor
 public class AuthenficationController {
+
     private final UserService service;
+
+    private final ClusteringService clusteringService;
     private AuthenticationResponse jwt;
 
     @PostMapping("/register")
@@ -38,6 +40,12 @@ public class AuthenficationController {
         ResponseEntity<String> response = service.logout(user);
         System.out.println(user.getEmail());
         return response;
+    }
+    @GetMapping("/cluster")
+    public void cluster() throws Exception {
+
+        clusteringService.segmentation();
+
     }
 
 
