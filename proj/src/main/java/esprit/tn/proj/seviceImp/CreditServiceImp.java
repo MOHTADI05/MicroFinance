@@ -1,16 +1,22 @@
 package esprit.tn.proj.seviceImp;
 
 import esprit.tn.proj.entity.Credit;
+import esprit.tn.proj.entity.PackC;
 import esprit.tn.proj.repository.CreditRepository;
+import esprit.tn.proj.repository.PackRepository;
 import esprit.tn.proj.serviceInterface.ICreditService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class CreditServiceImp implements ICreditService {
     CreditRepository creditRepository;
+    PackRepository packRepository;
     @Override
     public List<Credit> AllCredit() {
         return creditRepository.findAll();
@@ -24,12 +30,13 @@ public class CreditServiceImp implements ICreditService {
     public Credit updateCredit(Long id, Credit credit) {
         return creditRepository.findById(id)
                 .map(c-> {
-                    c.setAmount(credit.getAmount());
-                    c.setDemandedate(credit.getDemandedate());
-                    c.setInterest(credit.getInterest());
-                    c.setState(credit.getState());
-                    c.setMounthlypayment(credit.getMounthlypayment());
-                    c.setObtainingdate(credit.getObtainingdate());
+                    c.setMinamount(credit.getMinamount());
+                    c.setMaxamount(credit.getMaxamount());
+                    c.setDescription(credit.getDescription());
+                    c.setName(credit.getName());
+
+
+
                     return creditRepository.save(c);
                 }).orElseThrow(()-> new RuntimeException("Credit not found"));
     }
@@ -39,4 +46,23 @@ public class CreditServiceImp implements ICreditService {
         creditRepository.deleteById(id);
         return "Credit supp";
     }
+
+    @Override
+    public Credit addCreditAndAssignToPackC(Credit credit, Long idP) {
+        PackC packC =packRepository.findById(idP).orElse(null);
+        credit.setPackC(packC);
+
+
+        return creditRepository.save(credit);
+    }
+    @Override
+    public List<Credit> AllCreditByPack(Long i) {
+
+        return creditRepository.findByPackCIdP(i);
+    }
+
+
+
+
+
 }

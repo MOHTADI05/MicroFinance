@@ -22,6 +22,11 @@ public class CreditController {
     public List<Credit> read(){
         return creditService.AllCredit();
     }
+    @GetMapping("/readCreditPack/{id}")
+    public List<Credit> readCreditPack(@PathVariable Long id){
+        return creditService.AllCreditByPack(id);
+    }
+
 @PutMapping ("/update/{id}")
     public Credit update(@PathVariable Long id,@RequestBody Credit credit){
         return creditService.updateCredit(id , credit);
@@ -32,5 +37,13 @@ public class CreditController {
     {
         return creditService.deleteCredit(id);
     }
+
+    @PostMapping("/add/{idP}")
+    public Credit addRegistrationAndAssignToSkier(@RequestBody Credit credit, @PathVariable("idP") Long idP) {
+        return creditService.addCreditAndAssignToPackC( credit,idP);
+    }
+
+
+
 
 }

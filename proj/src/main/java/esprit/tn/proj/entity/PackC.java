@@ -21,7 +21,7 @@ public class PackC implements Serializable {
     private String description;
 
     private String name;
-@OneToMany(cascade = CascadeType.ALL)
+@OneToMany(cascade = CascadeType.ALL, mappedBy = "packC")
 private Set<Credit> credits;
 
 }

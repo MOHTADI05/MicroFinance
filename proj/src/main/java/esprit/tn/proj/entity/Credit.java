@@ -1,5 +1,6 @@
 package esprit.tn.proj.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,17 +15,17 @@ public class Credit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idcredit;
 
-    private Integer amount;
 
-    private LocalDate demandedate;
+    private Integer minamount;
+    private Integer maxamount;
+    private String name;
+    private String description;
 
-    private LocalDate obtainingdate;
 
-    private String state;
-
-    private Integer mounthlypayment;
-
-    private Integer interest;
+@ManyToOne
+@JoinColumn(name = "packc_idp")
+@JsonIgnore // Ignorer cette propriété lors de la sérialisation JSON
+    PackC packC;
 
 
 }
